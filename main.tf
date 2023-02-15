@@ -21,7 +21,43 @@ resource "aws_instance" "app_server" {
   ]
   subnet_id = "subnet-0f79bf7d4bc65f63b"
   key_name  = "clave-lucatic"
-  user_data = file("cloudinit.sh")
+  provisioner "file" {
+    source      = "cloudinit.sh"
+    destination = "/home/ec2-user/cloudinit.sh"
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = self.public_ip
+      private_key = file("~/.ssh/clave-lucatic.pem")
+    }
+
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /home/ec2-user/cloudinit.sh",
+      "/home/ec2-user/cloudinit.sh",
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = self.public_ip
+      private_key = file("~/.ssh/clave-lucatic.pem")
+
+    }
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "docker-compose pull",
+      "docker-compose up -d",
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = self.public_ip
+      private_key = file("~/.ssh/clave-lucatic.pem")
+    }
+  }
   tags = {
     Name = var.instance_name
     APP  = "vue2048"

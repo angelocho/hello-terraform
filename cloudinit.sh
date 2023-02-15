@@ -1,17 +1,13 @@
 #!/bin/bash
-amazon-linux-extras install docker -y
+sudo amazon-linux-extras install docker -y
 
-service docker start
-systemctl enable docker
+sudo service docker start
+sudo systemctl enable docker
 
-usermod -a -G docker ec2-user
+sudo usermod -a -G docker ec2-user
 
-pip3 install docker-compose
+sudo pip3 install docker-compose
 
-wget https://raw.githubusercontent.com/angelocho/hello-amazon/main/compose.yaml
+sudo wget https://raw.githubusercontent.com/angelocho/hello-amazon/main/compose.yaml
 
-chown ec2-user compose.yaml
-
-docker-compose pull
-
-docker-compose up -d
+sudo chown ec2-user compose.yaml

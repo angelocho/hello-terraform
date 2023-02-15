@@ -19,47 +19,14 @@ resource "aws_instance" "app_server" {
   vpc_security_group_ids = [
     "sg-0d2b1e710a2281426",
   ]
+  count = "1"
   subnet_id = "subnet-0f79bf7d4bc65f63b"
   key_name  = "clave-lucatic"
-  provisioner "file" {
-    source      = "cloudinit.sh"
-    destination = "/home/ec2-user/cloudinit.sh"
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      host        = self.public_ip
-      private_key = file("~/.ssh/clave-lucatic.pem")
-    }
-
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /home/ec2-user/cloudinit.sh",
-      "/home/ec2-user/cloudinit.sh",
-    ]
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      host        = self.public_ip
-      private_key = file("~/.ssh/clave-lucatic.pem")
-
-    }
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "docker-compose pull",
-      "docker-compose up -d",
-    ]
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      host        = self.public_ip
-      private_key = file("~/.ssh/clave-lucatic.pem")
-    }
-  }
   tags = {
     Name = var.instance_name
     APP  = "vue2048"
+  }
+    provisioner "local-exec" {
+    command = "ansible-playbook -i aws_ec2.yaml httpd_2048.yml"
   }
 }
